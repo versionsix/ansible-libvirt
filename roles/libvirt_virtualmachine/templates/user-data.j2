@@ -1,0 +1,30 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+users:
+  - default
+  - name: cloud
+    groups: sudo
+    shell: /bin/bash
+    sudo:  ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    passwd: $1$xyz$gHGNZEUfkr7kO4T0iQWw71 # openssl passwd -1 -salt xyz cloud
+    ssh_authorized_keys:
+      {{ssh_authorized_keys| to_nice_yaml(indent=2) | trim | indent(6)}}
+
+write_files:
+  - path: /etc/issue
+    permissions: '0644'
+    content: |
+      \S
+      Kernel \r on an \m
+      IpV4(eth0): \4{eth0}
+      IpV6(eth0): \6{eth0}
+
+bootcmd:
+  - [ cloud-init-per, once, firstboot, touch, /run/firstboot ]
+
+runcmd:
+  - echo "cloud"
+{{userData}}

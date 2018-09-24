@@ -1,0 +1,36 @@
+---
+all:
+  hosts:
+    localhost
+  vars:
+    template_state: present # absent; upgrade
+    virtualmachine_state: present # absent; upgrade
+    guests:
+      virtualmachine1:
+        hostname : vm-1
+        template: centos75
+        osDisk: 10G
+        memory: 2048
+        vcpus: 4
+        network: network-data
+        eth0_subnets:
+          - type: static
+            address: 10.192.124.38
+            netmask: 255.255.255.0
+            gateway: 10.192.124.1
+            dns_nameservers:
+              - 1.1.1.1
+              - 1.0.0.1
+      userData: |
+        bootcmd:
+          - [ cloud-init-per, once, firstboot, touch, /run/firstboot ]
+  # children:
+  #   myGroup:
+  #     hosts:
+  #       myHost1:
+  #         ansible_host: myhost1.example.com
+  #       myHost2:
+  #         ansible_host: myhost2.example.com
+  #     vars:
+  #       ansible_become: true
+  #       ansible_user: cloud

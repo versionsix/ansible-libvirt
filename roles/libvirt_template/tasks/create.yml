@@ -1,0 +1,18 @@
+---
+- name: Download qcow image
+  get_url:
+    url: "{{libvirt_templates[template.item]['image_url']}}"
+    dest: "{{libvirt_storage}}/{{libvirt_templates[template.item]['image_template']}}"
+
+- name: run virt-customize with network
+  shell: >
+    virt-customize --update --install nano --run-command 'echo -e "\nUseDNS no\n" >> /etc/ssh/sshd_config'
+    -a {{libvirt_storage}}/{{libvirt_templates[template.item]['image_template']}}
+  when: libvirt_templates[template.item]['libosinfo'] is search ("centos")
+
+# This fixes orphaned DNS records inside the VM.
+- name: run virt-customize withouth network
+  shell: >
+    virt-customize --no-network --run-command 'echo "" > /etc/resolv.conf' --selinux-relabel
+    -a {{libvirt_storage}}/{{libvirt_templates[template.item]['image_template']}}
+  when: libvirt_templates[template.item]['libosinfo'] is search ("centos")

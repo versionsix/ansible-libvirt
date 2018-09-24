@@ -1,0 +1,15 @@
+---
+- name: List libvirt current templates
+  stat:
+    path: "{{libvirt_storage}}/{{libvirt_templates[item]['image_template']}}"
+  register: template_stat
+  loop: "{{ guests | json_query('*.template') | unique | list}}"
+  loop_control:
+    label: "template_{{item}}"
+- name: Create template
+  include_tasks: create.yml
+  loop: "{{template_stat.results}}"
+  when: "not template.stat.exists and template_state == 'present'"
+  loop_control:
+    loop_var: template
+    label: "template_{{template.item}}"

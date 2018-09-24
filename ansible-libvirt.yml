@@ -1,0 +1,9 @@
+---
+- name: Create virtualmachine to libvirt
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: libvirt_template
+    - role: libvirt_virtualmachine
+  # pre_tasks:
+  #   - debug: "msg={{libvirt_templates}}"

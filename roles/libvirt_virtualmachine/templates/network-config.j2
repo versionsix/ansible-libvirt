@@ -1,0 +1,11 @@
+---
+version: 1
+config:
+  - type: physical
+    name: eth0
+    subnets:
+      {{eth0_subnets| to_nice_yaml(indent=2) | trim | indent(6)}}
+  - type: nameserver
+    address:
+      - 1.1.1.1
+      - 1.0.0.1

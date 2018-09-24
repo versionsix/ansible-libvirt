@@ -1,0 +1,51 @@
+---
+- name: create temporary build directory
+  tempfile:
+    state: directory
+    suffix: nocloud
+  register: tempdir
+
+- name: Template nocloud-config
+  template:
+    src: "{{item}}.j2"
+    dest: "{{tempdir.path}}/{{item}}"
+  vars:
+    eth0_subnets: "{{vm.value.eth0_subnets}}"
+    userData: "{{vm.value.userData}}"
+  loop:
+    - meta-data
+    - network-config
+    - user-data
+
+- name: Create nocloud iso.
+  shell: >
+    genisoimage
+    -joliet -rock
+    -volid "cidata"
+    -output {{libvirt_storage}}/{{vm.key}}_nocloud.iso {{tempdir.path}}/meta-data {{tempdir.path}}/user-data {{tempdir.path}}/network-config
+
+- name: Copy VM Template
+  copy:
+    remote_src: yes
+    src: "{{libvirt_storage}}/{{libvirt_templates[vm.value.template].image_template}}"
+    dest: "{{libvirt_storage}}/{{vm.key}}.qcow2"
+
+- name: Resize image
+  shell: >
+    qemu-img resize {{libvirt_storage}}/{{vm.key}}.qcow2 {{vm.value.osDisk}}
+
+- name: Create Virtual machine
+  shell: >
+    virt-install
+    --import
+    --graphics none
+    --console pty,target_type=virtio
+    --noautoconsole
+    --cpu mode=host-passthrough
+    -n {{vm.key}}
+    -r {{vm.value.memory}}
+    -w network={{vm.value.network}}
+    --disk {{libvirt_storage}}/{{vm.key}}.qcow2,device=disk,bus=virtio
+    --disk path={{libvirt_storage}}/{{vm.key}}_nocloud.iso,device=cdrom
+    --vcpus {{vm.value.vcpus}}
+    --os-variant {{libvirt_templates[vm.value.template].libosinfo}}

@@ -1,0 +1,10 @@
+---
+libvirt_templates:
+  rhel76beta:
+    image_url: http://example.com/rhel-server-7.6-beta-1-x86_64-kvm.qcow2
+    image_template: rhel-server-7.6-beta-1-x86_64-kvm.template.qcow2
+    libosinfo: rhel7.5
+  rhel75:
+    image_url: http://example.com/rhel-server-7.5-update-3-x86_64-kvm.qcow2
+    image_template: rhel-server-7.5-update-3-x86_64-kvm.template.qcow2
+    libosinfo: rhel7.5

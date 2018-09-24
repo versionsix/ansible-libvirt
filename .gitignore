@@ -1,0 +1,4 @@
+.vagrant/
+inventory.yml
+group_vars/rhel.yml
+group_vars/ssh_keys.yml

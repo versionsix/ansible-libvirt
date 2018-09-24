@@ -1,0 +1,12 @@
+---
+- name: List libvirt current images
+  virt: command=list_vms
+  register: virt_vms
+
+- name: Create VM('s)
+  include_tasks: create.yml
+  loop: "{{guests|dict2items}}"
+  when: "vm.key not in virt_vms.list_vms and virtualmachine_state == 'present'"
+  loop_control:
+    loop_var: vm
+    label: "vm_{{vm.key}}"
